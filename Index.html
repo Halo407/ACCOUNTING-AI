@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Counting Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            background: white;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--card-shadow);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--gray);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .mode-panel {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+        
+        .mode-panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+        
+        .panel-header i {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+        
+        .panel-header h2 {
+            font-size: 1.6rem;
+            color: var(--dark);
+        }
+        
+        .mode-content {
+            display: none;
+        }
+        
+        .mode-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--light-gray);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-block {
+            width: 100%;
+        }
+        
+        .btn-clear {
+            background: var(--gray);
+        }
+        
+        .btn-clear:hover {
+            background: #5a6268;
+        }
+        
+        .result-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+        
+        .panel-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-content {
+            min-height: 150px;
+            background: var(--light);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        
+        .history-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .history-list {
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .history-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-info {
+            flex: 1;
+        }
+        
+        .history-type {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .history-desc {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+        
+        .history-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .history-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: var(--transition);
+        }
+        
+        .history-btn:hover {
+            color: var(--primary);
+        }
+        
+        .empty-history {
+            text-align: center;
+            padding: 30px;
+            color: var(--gray);
+        }
+        
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .mode-btn {
+            background: white;
+            border: 2px solid var(--light-gray);
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .mode-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .mode-btn:hover:not(.active) {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .mode-panel {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-calculator"></i>
+            </div>
+            <h1>AI Counting Assistant</h1>
+            <p class="subtitle">Intelligent counting for numbers, text, and custom items. Choose your mode and get accurate results instantly.</p>
+        </header>
+        
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="basic">
+                <i class="fas fa-list-ol"></i> Basic Count
+            </button>
+            <button class="mode-btn" data-mode="occurrences">
+                <i class="fas fa-text-height"></i> Count Occurrences
+            </button>
+            <button class="mode-btn" data-mode="custom">
+                <i class="fas fa-list"></i> Custom List Count
+            </button>
+        </div>
+        
+        <div class="app-container">
+            <div class="mode-panel">
+                <div class="panel-header">
+                    <i class="fas fa-sliders-h"></i>
+                    <h2>Configuration</h2>
+                </div>
+                
+                <div id="basic-mode" class="mode-content active">
+                    <div class="form-group">
+                        <label for="start">Start Number</label>
+                        <input type="number" id="start" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="end">End Number</label>
+                        <input type="number" id="end" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label for="step">Step Value</label>
+                        <input type="number" id="step" value="1" min="1">
+                    </div>
+                    <button id="basic-count" class="btn btn-block">
+                        <i class="fas fa-calculator"></i> Count Numbers
+                    </button>
+                </div>
+                
+                <div id="occurrences-mode" class="mode-content">
+                    <div class="form-group">
+                        <label for="text-input">Text to Analyze</label>
+                        <textarea id="text-input" rows="4" placeholder="Enter text to count characters and words...">The quick brown fox jumps over the lazy dog. The dog was indeed lazy!</textarea>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="case-sensitive">
+                            <label for="case-sensitive" style="display: inline;">Case Sensitive</label>
+                        </div>
+                    </div>
+                    <button id="occurrences-count" class="btn btn-block">
+                        <i class="fas fa-chart-bar"></i> Analyze Text
+                    </button>
+                </div>
+                
+                <div id="custom-mode" class="mode-content">
+                    <div class="form-group">
+                        <label for="custom-items">Items (comma separated)</label>
+                        <input type="text" id="custom-items" placeholder="apple, banana, apple, orange, banana, apple" value="apple, banana, apple, orange, banana, apple">
+                    </div>
+                    <button id="custom-count" class="btn btn-block">
+                        <i class="fas fa-list-ul"></i> Count Items
+                    </button>
+                </div>
+            </div>
+            
+            <div class="result-panel">
+                <h2 class="panel-title"><i class="fas fa-chart-pie"></i> Results</h2>
+                <div id="result-content" class="result-content">
+                    Your counting results will appear here. Select a mode and click the count button to get started!
+                </div>
+            </div>
+        </div>
+        
+        <div class="history-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 class="panel-title"><i class="fas fa-history"></i> Operation History</h2>
+                <button id="clear-history" class="btn btn-clear">
+                    <i class="fas fa-trash"></i> Clear History
+                </button>
+            </div>
+            <div class="history-list" id="history-list">
+                <div class="empty-history">
+                    <i class="fas fa-clock" style="font-size: 3rem; margin-bottom: 15px; color: var(--light-gray);"></i>
+                    <p>No operations performed yet</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>AI Counting Assistant &copy; 2025 | Built with HTML, CSS, and JavaScript</p>
+        </footer>
+    </div>
+
+    <script>
+        // Counting AI implementation
+        class CountingAI {
+            constructor() {
+                this.history = [];
+            }
+            
+            basicCount(start, end, step) {
+                if (step === 0) throw new Error("Step cannot be zero");
+                if (start === end) return [start];
+                if ((start < end && step < 0) || (start > end && step > 0)) return [];
+                
+                const result = [];
+                let current = start;
+                if (step > 0) {
+                    while (current <= end) {
+                        result.push(current);
+                        current += step;
+                    }
+                } else {
+                    while (current >= end) {
+                        result.push(current);
+                        current += step;
+                    }
+                }
+                
+                this.history.push({
+                    type: "Basic Count",
+                    description: `from ${start} to ${end} by ${step}`,
+                    result: result,
+                    timestamp: new Date()
+                });
+                
+                return { type: "Basic Count", result: result, description: `from ${start} to ${end} by ${step}` };
+            }
+            
+            countOccurrences(text, caseSensitive) {
+                const processedText = caseSensitive ? text : text.toLowerCase();
+                const words = processedText.match(/\b\w+\b/g) || [];
+                const chars = processedText.replace(/\s/g, '').split('');
+                
+                const charCount = {};
+                chars.forEach(char => {
+                    charCount[char] = (charCount[char] || 0) + 1;
+                });
+                
+                const wordCount = {};
+                words.forEach(word => {
+                    wordCount[word] = (wordCount[word] || 0) + 1;
+                });
+                
+                const result = { characters: charCount, words: wordCount };
+                
+                this.history.push({
+                    type: "Count Occurrences",
+                    description: `Text: '${text.substring(0, 20)}${text.length > 20 ? '...' : ''}'`,
+                    result: result,
+                    timestamp: new Date()
+                });
+                
+                return { 
+                    type: "Count Occurrences", 
+                    result: result, 
+                    description: `Text: '${text.substring(0, 20)}${text.length > 20 ? '...' : ''}'` 
+                };
+            }
+            
+            customCount(items) {
+                const itemArray = items.split(',').map(item => item.trim()).filter(item => item !== '');
+                const itemCount = {};
+                
+                itemArray.forEach(item => {
+                    itemCount[item] = (itemCount[item] || 0) + 1;
+                });
+                
+                this.history.push({
+                    type: "Custom List Count",
+                    description: `${itemArray.length} items`,
+                    result: itemCount,
+                    timestamp: new Date()
+                });
+                
+                return { 
+                    type: "Custom List Count", 
+                    result: itemCount, 
+                    description: `${itemArray.length} items` 
+                };
+            }
+            
+            getHistory() {
+                return this.history;
+            }
+            
+            clearHistory() {
+                this.history = [];
+            }
+        }
+        
+        // Initialize the AI
+        const ai = new CountingAI();
+        
+        // DOM elements
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        const modeContents = document.querySelectorAll('.mode-content');
+        const resultContent = document.getElementById('result-content');
+        const historyList = document.getElementById('history-list');
+        
+        // Mode switching
+        modeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Update active button
+                modeButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Show corresponding content
+                const mode = button.dataset.mode;
+                modeContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === mode + '-mode') {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        });
+        
+        // Basic count functionality
+        document.getElementById('basic-count').addEventListener('click', () => {
+            const start = parseInt(document.getElementById('start').value);
+            const end = parseInt(document.getElementById('end').value);
+            const step = parseInt(document.getElementById('step').value);
+            
+            if (isNaN(start) || isNaN(end) || isNaN(step)) {
+                alert('Please enter valid numbers');
+                return;
+            }
+            
+            try {
+                const result = ai.basicCount(start, end, step);
+                displayResult(result);
+                updateHistory();
+            } catch (error) {
+                displayError(error.message);
+            }
+        });
+        
+        // Occurrences count functionality
+        document.getElementById('occurrences-count').addEventListener('click', () => {
+            const text = document.getElementById('text-input').value;
+            const caseSensitive = document.getElementById('case-sensitive').checked;
+            
+            if (!text.trim()) {
+                alert('Please enter text to analyze');
+                return;
+            }
+            
+            try {
+                const result = ai.countOccurrences(text, caseSensitive);
+                displayResult(result);
+                updateHistory();
+            } catch (error) {
+                displayError(error.message);
+            }
+        });
+        
+        // Custom count functionality
+        document.getElementById('custom-count').addEventListener('click', () => {
+            const items = document.getElementById('custom-items').value;
+            
+            if (!items.trim()) {
+                alert('Please enter items to count');
+                return;
+            }
+            
+            try {
+                const result = ai.customCount(items);
+                displayResult(result);
+                updateHistory();
+            } catch (error) {
+                displayError(error.message);
+            }
+        });
+        
+        // Clear history
+        document.getElementById('clear-history').addEventListener('click', () => {
+            if (ai.getHistory().length === 0) return;
+            
+            if (confirm('Are you sure you want to clear all history?')) {
+                ai.clearHistory();
+                updateHistory();
+                resultContent.textContent = 'History cleared. Your counting results will appear here.';
+            }
+        });
+        
+        // Display functions
+        function displayResult(result) {
+            let output = '';
+            
+            if (result.type === "Basic Count") {
+                output = `Counting from ${result.result[0]} to ${result.result[result.result.length - 1]} by ${result.result[1] - result.result[0] || 1}:\n\n`;
+                output += result.result.join(', ');
+            } 
+            else if (result.type === "Count Occurrences") {
+                output = `Text analyzed: "${result.description.replace("Text: '", "").replace("'", "")}"\n\n`;
+                output += "Character counts:\n";
+                for (const [char, count] of Object.entries(result.result.characters)) {
+                    output += `  '${char}': ${count}\n`;
+                }
+                output += "\nWord counts:\n";
+                for (const [word, count] of Object.entries(result.result.words)) {
+                    output += `  '${word}': ${count}\n`;
+                }
+            } 
+            else if (result.type === "Custom List Count") {
+                output = `Items analyzed: ${result.description}\n\n`;
+                output += "Count results:\n";
+                for (const [item, count] of Object.entries(result.result)) {
+                    output += `  '${item}': ${count}\n`;
+                }
+            }
+            
+            resultContent.textContent = output;
+        }
+        
+        function displayError(message) {
+            resultContent.innerHTML = `<span style="color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> Error: ${message}</span>`;
+        }
+        
+        function updateHistory() {
+            const history = ai.getHistory();
+            
+            if (history.length === 0) {
+                historyList.innerHTML = `
+                    <div class="empty-history">
+                        <i class="fas fa-clock" style="font-size: 3rem; margin-bottom: 15px; color: var(--light-gray);"></i>
+                        <p>No operations performed yet</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            historyList.innerHTML = '';
+            history.slice().reverse().forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div class="history-info">
+                        <div class="history-type">${item.type}</div>
+                        <div class="history-desc">${item.description}</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="history-btn" onclick="viewHistoryItem(${history.length - 1 - index})">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                `;
+                historyList.appendChild(historyItem);
+            });
+        }
+        
+        // View history item
+        function viewHistoryItem(index) {
+            const history = ai.getHistory();
+            if (index >= 0 && index < history.length) {
+                displayResult(history[index]);
+            }
+        }
+        
+        // Initialize with sample history
+        window.addEventListener('load', () => {
+            // Add a sample operation to demonstrate
+            try {
+                ai.basicCount(1, 10, 1);
+                updateHistory();
+                displayResult(ai.getHistory()[0]);
+            } catch (e) {
+                // Ignore if error
+            }
+        });
+    </script>
+</body>
+  </html>
